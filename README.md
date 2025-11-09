@@ -13,7 +13,7 @@
 ---
 
 <details>
-<summary># Tugas 7</summary>
+<summary>Tugas 7</summary>
 
 ## 1. Jelaskan apa itu widget tree pada Flutter dan bagaimana hubungan parent-child (induk-anak) bekerja antar widget.
 
