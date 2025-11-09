@@ -12,7 +12,8 @@
 
 ---
 
-# Tugas 7
+<details>
+<summary># Tugas 7</summary>
 
 ## 1. Jelaskan apa itu widget tree pada Flutter dan bagaimana hubungan parent-child (induk-anak) bekerja antar widget.
 
@@ -69,3 +70,38 @@ Untuk mendefinisikan posisi pada widget di dalam widget tree. Setiap widget memi
 Hot Reload adalah fitur yang membuat devleoper dapat melihat perubahan kode secara instan dalam aplikasi tanpa harus restart aplikasi terlebih dahulu.
 
 Perbedaan dengan Hot Restart adalah ketika kita ingin melakukan Hot Reload, tetapi secara menyeluruh pada suatu aplikasi/build ulang aplikasi tersebut. Hal ini dilakukan jika developer melakukan perubahan yang tidak dapat dilakukan dengan hot reload. (ex: perubahan config, perubahan plugin dan lainnya.)
+
+</details>
+
+<details>
+<summary>Tugas 8</summary>
+
+## 1. Jelaskan perbedaan antara Navigator.push() dan Navigator.pushReplacement() pada Flutter. Dalam kasus apa sebaiknya masing-masing digunakan pada aplikasi Football Shop kamu?
+
+`Navigator.push()` menambahkan route baru ke atas stack navigasi, sehingga pengguna dapat kembali ke halaman sebelumnya dengan tombol back. Sementara itu, `Navigator.pushReplacement()` menggantikan route saat ini di stack dengan route baru, sehingga halaman sebelumnya dihapus dan pengguna tidak dapat kembali secara langsung.
+
+Pada aplikasi Football Shop (Bluekicksport), `Navigator.pushReplacement()` digunakan di `LeftDrawer` untuk navigasi ke halaman "Home" atau "Add Product". Ini cocok karena drawer biasanya digunakan untuk berpindah ke bagian utama aplikasi tanpa perlu kembali ke halaman sebelumnya (misalnya, dari form produk kembali ke home). Jika menggunakan `Navigator.push()`, stack akan menumpuk dan pengguna bisa kembali ke halaman yang sama berulang kali, yang tidak efisien untuk navigasi menu utama. Untuk kasus lain seperti membuka detail produk dari list, `Navigator.push()` lebih sesuai agar pengguna bisa kembali ke list.
+
+## 2. Bagaimana kamu memanfaatkan hierarchy widget seperti Scaffold, AppBar, dan Drawer untuk membangun struktur halaman yang konsisten di seluruh aplikasi?
+
+`Scaffold` digunakan sebagai kerangka dasar untuk setiap halaman (`MyHomePage` dan `ProductFormPage`), menyediakan struktur standar dengan `AppBar` di atas, `Drawer` di sisi kiri, dan `body` sebagai area konten utama. `AppBar` menampilkan judul halaman (misalnya, "Bluekicksport" di home dan "Form Tambah Produk" di form) dengan warna latar dari tema aplikasi untuk konsistensi. `Drawer` (`LeftDrawer`) berisi menu navigasi yang sama di semua halaman, memungkinkan akses cepat ke home atau form tanpa mengubah struktur halaman.
+
+Hierarki ini memastikan konsistensi: setiap halaman memiliki header, navigasi samping, dan body yang dapat disesuaikan. Misalnya, di `menu.dart`, `Scaffold` membungkus `AppBar`, `Drawer`, dan `body` dengan `Padding` dan `Column` untuk layout kartu info dan grid item. Di `product_form.dart`, struktur sama digunakan, dengan `body` berisi `Form` dan `SingleChildScrollView` untuk elemen form. Ini membuat aplikasi terasa koheren dan mudah dinavigasi.
+
+## 3. Dalam konteks desain antarmuka, apa kelebihan menggunakan layout widget seperti Padding, SingleChildScrollView, dan ListView saat menampilkan elemen-elemen form? Berikan contoh penggunaannya dari aplikasi kamu.
+
+Layout widget seperti `Padding`, `SingleChildScrollView`, dan `ListView` membantu dalam mengatur spacing, scrollability, dan tata letak elemen UI untuk pengalaman pengguna yang lebih baik.
+
+- **Padding**: Menambahkan ruang kosong di sekitar widget untuk mencegah elemen terlalu rapat, meningkatkan readability dan estetika. Kelebihannya adalah fleksibilitas dalam mengontrol margin tanpa mengubah ukuran widget anak.
+- **SingleChildScrollView**: Membuat konten scrollable secara vertikal jika tinggi melebihi layar, mencegah overflow dan memungkinkan akses ke semua elemen tanpa cropping. Kelebihannya adalah efisiensi untuk form panjang tanpa perlu list kompleks.
+- **ListView**: Ideal untuk menampilkan daftar item yang dapat di-scroll, dengan performa baik untuk data dinamis. Kelebihannya adalah lazy loading dan penghematan memori untuk list besar.
+
+Dalam aplikasi Football Shop, `Padding` digunakan di sekitar setiap `TextFormField` di `product_form.dart` (misalnya, `Padding(padding: const EdgeInsets.all(8.0), child: TextFormField(...))`) untuk memberikan jarak antar field form, membuat form lebih rapi. `SingleChildScrollView` membungkus `Column` di form untuk memungkinkan scrolling jika keyboard muncul atau konten panjang, seperti saat mengisi deskripsi multiline. Meskipun `ListView` tidak digunakan secara eksplisit di kode saat ini, bisa diterapkan untuk menampilkan list produk di masa depan, seperti mengganti `GridView` dengan `ListView` untuk daftar vertikal.
+
+## 4. Bagaimana kamu menyesuaikan warna tema agar aplikasi Football Shop memiliki identitas visual yang konsisten dengan brand toko?
+
+Warna tema disesuaikan di `main.dart` dalam `MaterialApp` menggunakan `ThemeData` dengan `ColorScheme.fromSwatch(primarySwatch: Colors.blue).copyWith(secondary: Colors.blueAccent[400])`. Ini menetapkan warna utama biru untuk `AppBar`, tombol, dan elemen interaktif, mencerminkan identitas brand "Football Shop" yang terkait dengan olahraga (biru sering diasosiasikan dengan kepercayaan dan energi).
+
+Konsistensi dicapai dengan menggunakan `Theme.of(context).colorScheme.primary` di `AppBar` dan `DrawerHeader`, serta warna spesifik seperti `Colors.indigo` di form untuk tombol submit. Misalnya, di `menu.dart`, `AppBar` menggunakan `Theme.of(context).colorScheme.primary` untuk warna biru konsisten. Di `product_form.dart`, `AppBar` dan `ElevatedButton` menggunakan `Colors.indigo` untuk variasi yang tetap dalam palet biru. Ini memastikan semua halaman terlihat seragam, memperkuat brand sebagai toko olahraga yang profesional dan energik.
+
+</details>

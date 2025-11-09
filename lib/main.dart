@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:bluekicksport/menu.dart';
+import 'package:bluekicksport/screens/menu.dart';
 
 void main() {
   runApp(const MyApp());
