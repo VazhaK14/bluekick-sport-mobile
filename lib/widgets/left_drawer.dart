@@ -1,3 +1,4 @@
+import 'package:bluekicksport/screens/product_entry_list.dart';
 import 'package:flutter/material.dart';
 import 'package:bluekicksport/screens/menu.dart';
 import 'package:bluekicksport/screens/product_form.dart';
@@ -56,6 +57,20 @@ class LeftDrawer extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => ProductFormPage()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.add_reaction_rounded),
+            title: const Text('News List'),
+            onTap: () {
+              // Route to news list page
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      const ProductEntryListPage(filter: "all"),
+                ),
               );
             },
           ),

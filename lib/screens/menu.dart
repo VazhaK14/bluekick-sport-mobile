@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:bluekicksport/widgets/left_drawer.dart';
-import 'package:bluekicksport/screens/product_form.dart';
 import 'package:bluekicksport/widgets/product_card.dart';
 
 class MyHomePage extends StatelessWidget {
@@ -14,6 +13,7 @@ class MyHomePage extends StatelessWidget {
     ItemHomepage("All Products", Icons.list, Colors.blue),
     ItemHomepage("My Products", Icons.inventory, Colors.green),
     ItemHomepage("Create Product", Icons.add, Colors.red),
+    ItemHomepage("Logout", Icons.verified_user, Colors.orange),
   ];
 
   @override
@@ -51,7 +51,7 @@ class MyHomePage extends StatelessWidget {
                   const Padding(
                     padding: EdgeInsets.only(top: 16.0),
                     child: Text(
-                      'Selamat datang di Football News',
+                      'Selamat datang di BluekickSport',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18.0,
