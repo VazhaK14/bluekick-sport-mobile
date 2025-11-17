@@ -105,3 +105,103 @@ Warna tema disesuaikan di `main.dart` dalam `MaterialApp` menggunakan `ThemeData
 Konsistensi dicapai dengan menggunakan `Theme.of(context).colorScheme.primary` di `AppBar` dan `DrawerHeader`, serta warna spesifik seperti `Colors.indigo` di form untuk tombol submit. Misalnya, di `menu.dart`, `AppBar` menggunakan `Theme.of(context).colorScheme.primary` untuk warna biru konsisten. Di `product_form.dart`, `AppBar` dan `ElevatedButton` menggunakan `Colors.indigo` untuk variasi yang tetap dalam palet biru. Ini memastikan semua halaman terlihat seragam, memperkuat brand sebagai toko olahraga yang profesional dan energik.
 
 </details>
+
+<details>
+<summary>Tugas 9</summary>
+
+## 1. Jelaskan mengapa kita perlu membuat model Dart saat mengambil/mengirim data JSON? Apa konsekuensinya jika langsung memetakan Map<String, dynamic> tanpa model (terkait validasi tipe, null-safety, maintainability)?
+
+Membuat model Dart untuk data JSON sangat penting karena memberikan struktur dan keamanan. Berikut adalah alasannya:
+
+- **Validasi Tipe (Type Safety)**: Model Dart mendefinisikan tipe data yang jelas untuk setiap field (misalnya, `String` untuk nama, `int` untuk jumlah). Ini memungkinkan Dart untuk memvalidasi tipe saat kompilasi dan runtime. Tanpa model, saat menggunakan `Map<String, dynamic>`, kita bisa salah mengakses tipe data (misalnya, mengharapkan `int` tetapi mendapat `String`), yang hanya akan ketahuan saat runtime dan menyebabkan crash.
+- **Null-Safety**: Model memungkinkan kita mendefinisikan field mana yang boleh `null` dan mana yang tidak. Ini membantu mencegah `NullPointerException` yang umum terjadi. Jika kita langsung menggunakan `Map`, kita harus secara manual memeriksa apakah setiap kunci ada dan nilainya tidak `null`, yang membuat kode menjadi lebih rumit dan rawan kesalahan.
+- **Maintainability**: Model membuat kode lebih mudah dibaca, dipahami, dan dipelihara. Properti diakses dengan `product.name` (jelas dan mudah) daripada `product['name']` (rawan salah ketik dan tidak jelas). Jika struktur data dari API berubah, kita hanya perlu memperbarui model Dart di satu tempat, dan _compiler_ akan menunjukkan semua bagian kode yang perlu disesuaikan. Tanpa model, perubahan seperti ini harus dicari dan diperbaiki secara manual di seluruh aplikasi.
+
+## 2. Apa fungsi package http dan CookieRequest dalam tugas ini? Jelaskan perbedaan peran http vs CookieRequest.
+
+- **`http` package**: Ini adalah _package_ dasar untuk melakukan permintaan HTTP di Dart. Fungsinya adalah untuk mengirim permintaan seperti `GET`, `POST`, `PUT`, `DELETE` ke sebuah server dan menerima responsnya. _Package_ ini bersifat umum dan tidak secara otomatis mengelola status sesi atau _cookie_.
+- **`CookieRequest`**: Ini adalah kelas dari _package_ `pbp_django_auth` yang merupakan _wrapper_ (pembungkus) dari _package_ `http`. Peran utamanya adalah untuk menyederhanakan komunikasi dengan _backend_ Django yang menggunakan autentikasi berbasis sesi (_cookie_).
+
+**Perbedaan Peran**:
+
+- **`http`** hanya mengirim permintaan dan menerima respons. Setiap permintaan bersifat independen dan tidak menyimpan informasi dari permintaan sebelumnya.
+- **`CookieRequest`** secara otomatis menangani _cookie_. Saat melakukan _login_, ia akan menyimpan _cookie_ sesi yang diterima dari Django. Kemudian, untuk setiap permintaan selanjutnya, ia akan secara otomatis melampirkan _cookie_ tersebut, sehingga server mengenali pengguna sebagai _user_ yang sudah _login_. Singkatnya, `CookieRequest` menambahkan fungsionalitas manajemen sesi di atas `http`.
+
+## 3. Jelaskan mengapa instance CookieRequest perlu untuk dibagikan ke semua komponen di aplikasi Flutter.
+
+_Instance_ `CookieRequest` perlu dibagikan karena di dalamnya tersimpan status autentikasi pengguna, yaitu _cookie_ sesi. Setelah pengguna berhasil _login_, _cookie_ sesi disimpan di dalam _instance_ `CookieRequest` tersebut.
+
+Jika setiap komponen membuat _instance_ `CookieRequest` baru, maka setiap _instance_ akan kosong dan tidak memiliki _cookie_ sesi. Akibatnya, saat komponen tersebut mencoba mengakses _endpoint_ yang memerlukan autentikasi, Django akan menganggapnya sebagai pengguna anonim karena tidak ada _cookie_ yang dikirim.
+
+Dengan membagikan satu _instance_ yang sama (misalnya, menggunakan `Provider`), semua komponen di aplikasi akan menggunakan _instance_ yang sama yang sudah berisi _cookie_ sesi. Ini memastikan bahwa pengguna tetap terautentikasi saat bernavigasi antar halaman atau melakukan aksi yang memerlukan _login_, seperti menambah produk atau melihat data pribadi.
+
+## 4. Jelaskan konfigurasi konektivitas yang diperlukan agar Flutter dapat berkomunikasi dengan Django. Mengapa kita perlu menambahkan 10.0.2.2 pada ALLOWED_HOSTS, mengaktifkan CORS dan pengaturan SameSite/cookie, dan menambahkan izin akses internet di Android? Apa yang akan terjadi jika konfigurasi tersebut tidak dilakukan dengan benar?
+
+Agar Flutter dapat berkomunikasi dengan Django yang berjalan di _localhost_, beberapa konfigurasi penting diperlukan:
+
+1.  **Menambahkan `10.0.2.2` ke `ALLOWED_HOSTS` di Django**:
+
+    - **Mengapa?**: `10.0.2.2` adalah alamat IP khusus yang digunakan oleh emulator Android untuk merujuk ke `localhost` dari mesin _host_ (komputer tempat Django berjalan). Django secara _default_ hanya mengizinkan koneksi dari `localhost`. Dengan menambahkan `10.0.2.2`, kita memberitahu Django untuk mempercayai permintaan yang datang dari emulator Android.
+    - **Jika tidak dilakukan**: Django akan menolak permintaan tersebut dan menghasilkan _error_ "DisallowedHost", sehingga aplikasi Flutter tidak akan bisa terhubung.
+
+2.  **Mengaktifkan CORS (`Cross-Origin Resource Sharing`)**:
+
+    - **Mengapa?**: Aplikasi Flutter (berjalan di emulator) dan server Django (berjalan di _localhost_) dianggap berasal dari "origin" yang berbeda. Kebijakan keamanan _browser_ (dan Flutter) memblokir permintaan _cross-origin_ secara _default_. Dengan mengaktifkan CORS di Django (misalnya, dengan `django-cors-headers`), kita memberitahu server untuk mengizinkan permintaan dari origin aplikasi Flutter.
+    - **Jika tidak dilakukan**: Permintaan dari Flutter akan diblokir oleh kebijakan CORS, dan kita akan melihat _error_ terkait CORS di _console_ _debug_, yang menyebabkan _request_ gagal.
+
+3.  **Pengaturan `SameSite` untuk _Cookie_**:
+
+    - **Mengapa?**: Untuk keamanan, _browser_ modern membatasi pengiriman _cookie_ pada permintaan _cross-site_. Karena Flutter dan Django berjalan di _origin_ yang berbeda, kita perlu mengatur `SESSION_COOKIE_SAMESITE = 'None'` dan `CSRF_COOKIE_SAMESITE = 'None'` di Django. Ini memungkinkan _cookie_ sesi dikirimkan antar _origin_ sehingga autentikasi dapat berfungsi.
+    - **Jika tidak dilakukan**: _Cookie_ _login_ tidak akan tersimpan atau tidak akan dikirim pada permintaan selanjutnya. Akibatnya, pengguna tidak akan bisa _login_ atau akan dianggap _logout_ setiap kali melakukan permintaan baru.
+
+4.  **Menambahkan Izin Akses Internet di Android**:
+    - **Mengapa?**: Sistem operasi Android memerlukan izin eksplisit dari aplikasi untuk mengakses internet. Izin ini ditambahkan di file `AndroidManifest.xml` dengan baris `<uses-permission android:name="android.permission.INTERNET" />`.
+    - **Jika tidak dilakukan**: Android akan memblokir semua upaya aplikasi untuk membuat koneksi jaringan. Aplikasi tidak akan bisa berkomunikasi dengan server Django sama sekali, dan semua permintaan jaringan akan gagal.
+
+## 5. Jelaskan mekanisme pengiriman data mulai dari input hingga dapat ditampilkan pada Flutter.
+
+Mekanisme pengiriman dan penampilan data berjalan dalam beberapa langkah:
+
+1.  **Input Pengguna**: Pengguna memasukkan data melalui _widget_ `Form` di Flutter (misalnya, di halaman tambah produk). Data ini ditampung sementara oleh `TextEditingController` pada setiap `TextFormField`.
+2.  **Validasi dan Pengiriman**: Saat tombol _submit_ ditekan, _form_ divalidasi. Jika valid, sebuah fungsi dipanggil untuk mengirim data.
+3.  **Membuat Permintaan POST**: Fungsi tersebut menggunakan _instance_ `CookieRequest` untuk membuat permintaan `POST` ke _endpoint_ Django yang sesuai (misalnya, `/create-product-flutter/`). Data dari `TextEditingController` di-encode ke dalam format JSON dan dikirim sebagai _body_ dari permintaan.
+4.  **Proses di Django**: Django menerima permintaan `POST`, mem-parsing data JSON, memvalidasinya, dan kemudian membuat objek baru di _database_ (misalnya, objek `Product`).
+5.  **Respons dari Django**: Setelah berhasil menyimpan data, Django mengirimkan respons JSON kembali ke Flutter, biasanya berisi status keberhasilan (misalnya, `{"status": "success"}`).
+6.  **Menampilkan Data Baru**: Untuk menampilkan data yang baru ditambahkan (dan data lainnya), halaman daftar produk (`ProductEntryListPage`) membuat permintaan `GET` ke _endpoint_ Django yang lain (misalnya, `/json/`).
+7.  **Menerima dan Mem-parsing Data**: Django merespons permintaan `GET` dengan mengirimkan daftar semua produk dalam format JSON.
+8.  **Konversi ke Model Dart**: Flutter menerima data JSON ini, mem-parsing-nya, dan mengubah setiap objek JSON menjadi _instance_ dari model Dart (`ProductEntry`).
+9.  **Menampilkan di UI**: Data yang sudah dalam bentuk objek Dart ini kemudian digunakan untuk membangun _widget_ di UI (misalnya, menggunakan `ListView.builder` untuk menampilkan setiap produk sebagai `Card`), sehingga pengguna dapat melihat data yang baru saja mereka tambahkan.
+
+## 6. Jelaskan mekanisme autentikasi dari login, register, hingga logout. Mulai dari input data akun pada Flutter ke Django hingga selesainya proses autentikasi oleh Django dan tampilnya menu pada Flutter.
+
+Mekanisme autentikasi melibatkan alur kerja yang terkoordinasi antara Flutter dan Django:
+
+1.  **Registrasi**:
+
+    - **Input di Flutter**: Pengguna mengisi _form_ registrasi di `RegisterPage` (username, password).
+    - **Permintaan POST**: Saat _form_ di-_submit_, Flutter mengirimkan permintaan `POST` ke _endpoint_ registrasi Django. Data dikirim dalam format JSON.
+    - **Proses di Django**: Django menerima data, memvalidasinya, dan membuat _user_ baru di _database_. Django kemudian mengirimkan respons JSON yang menandakan registrasi berhasil atau gagal.
+    - **Hasil di Flutter**: Flutter menampilkan pesan sukses (misalnya, `SnackBar`) dan biasanya mengarahkan pengguna ke halaman _login_.
+
+2.  **Login**:
+
+    - **Input di Flutter**: Pengguna memasukkan kredensial di `LoginPage`.
+    - **Permintaan POST dengan `CookieRequest`**: Saat _login_, Flutter menggunakan _instance_ `CookieRequest` untuk mengirim permintaan `POST` ke _endpoint_ _login_ Django.
+    - **Autentikasi di Django**: Django memeriksa kredensial. Jika valid, Django akan membuat sesi untuk pengguna tersebut dan mengirimkan `sessionid` sebagai _cookie_ dalam _header_ respons.
+    - **Penyimpanan Cookie**: `CookieRequest` di Flutter secara otomatis mendeteksi dan menyimpan _cookie_ sesi ini di dalam _instance_-nya.
+    - **Navigasi**: Setelah menerima respons sukses dari Django, Flutter menavigasi pengguna ke halaman utama atau menu (`MyHomePage`), dan `Provider` memastikan _instance_ `CookieRequest` yang berisi _cookie_ ini tersedia untuk seluruh aplikasi.
+
+3.  **Akses Halaman Terproteksi**:
+
+    - Setiap kali pengguna mencoba mengakses halaman atau fitur yang memerlukan _login_ (misalnya, menambah produk), Flutter akan menggunakan _instance_ `CookieRequest` yang sama untuk membuat permintaan.
+    - `CookieRequest` secara otomatis melampirkan `sessionid` yang tersimpan ke dalam _header_ permintaan.
+    - Django menerima permintaan, memeriksa `sessionid`, mengidentifikasi pengguna, dan memberikan akses ke data atau fitur yang diminta.
+
+4.  **Logout**:
+    - **Aksi di Flutter**: Pengguna menekan tombol _logout_.
+    - **Permintaan Logout**: Flutter menggunakan `CookieRequest` untuk mengirim permintaan (biasanya `GET` atau `POST`) ke _endpoint_ _logout_ Django.
+    - **Proses di Django**: Django menghapus sesi pengguna dari _database_-nya, yang secara efektif membuat `sessionid` yang ada menjadi tidak valid.
+    - **Pembersihan di Flutter**: `CookieRequest` akan membersihkan _cookie_ yang tersimpan setelah menerima respons dari Django.
+    - **Navigasi**: Flutter mengarahkan pengguna kembali ke `LoginPage`, dan karena _cookie_ sudah tidak ada, pengguna tidak bisa lagi mengakses halaman yang terproteksi.
+
+</details>
