@@ -357,6 +357,6 @@ def show_json(request):
     },
   ),
   ```
-- Di `ProductListPage`, modifikasi fungsi `fetchData` untuk memeriksa nilai `widget.filter`. Jika nilainya `"user"`, panggil endpoint `/get-user-products-json/`. Jika tidak, panggil endpoint `/json/` seperti biasa. Ini memungkinkan satu halaman yang sama digunakan untuk menampilkan data yang berbeda.
+- Di `ProductListPage`, modifikasi fungsi `fetchData` untuk memeriksa nilai `widget.filter`. Jika nilainya `"user"`, panggil endpoint `/json/`. Ini memungkinkan satu halaman yang sama digunakan untuk menampilkan data yang berbeda.
 
 </details>
